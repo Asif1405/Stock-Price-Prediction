@@ -1,0 +1,44 @@
+def get_tickers():
+    resp = requests.get('http://en.wikipedia.org/wiki/List_of_S%26P_500_companies')
+    soup = bs.BeautifulSoup(resp.text, 'lxml')
+    table = soup.find('table', {'class': 'wikitable sortable'})
+    tickers = []
+    for row in table.findAll('tr')[1:]:
+        ticker = row.findAll('td')[0].text
+        tickers.append(ticker)
+        tickers = [x.replace("\n","") for x in tickers]
+        
+    with open("sp500tickers.pickle","wb") as f:
+        pickle.dump(tickers,f)
+
+    return tickers
+
+get_tickers()
+
+
+def get_data(reload_sp500=False):
+    if reload_sp500:
+        tickers = save_sp500_tickers()
+    else:
+        with open("sp500tickers.pickle", "rb") as f:
+            tickers = pickle.load(f)
+    if not os.path.exists('stock_dfs'):
+        os.makedirs('stock_dfs')
+
+    start = dt.datetime(2015, 1, 1)
+    end = dt.datetime.now()
+
+    yf.pdr_override()
+
+    for ticker in tickers:
+        # just in case your connection breaks, we'd like to save our progress!
+        if not os.path.exists('D:\\idlex-1.18\\stock_dfs\{}.csv'.format(ticker)):
+            df = pdr.get_data_yahoo(ticker, start, end)
+            df.reset_index(inplace=True)
+            df.set_index("Date", inplace=True)
+            df.to_csv('D:\\idlex-1.18\\stock_dfs\{}.csv'.format(ticker))
+
+        else:
+            print("Already have {}".format(ticker))
+
+get_data()
