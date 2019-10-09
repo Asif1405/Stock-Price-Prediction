@@ -1,0 +1,3 @@
+The Root Mean Squared Error for the voted classifier was 527.24. Which was too high. The output graph also reflect the result.
+The Root Mean Squared Error for the LSTM was 28.015. Which was way too better. The output graph also reflect the result.
+The LSTM model out performed the voted classifier which contains KNN, Support Vector Machine and Random Forrest.
